@@ -1,18 +1,28 @@
-import UserModel from '../../models/userSchema.mjs';
+import {UserModel }from '../../models/userSchema.mjs';
 import validator from 'validator';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-dotenv.config();
+import { comparePassword, createToken, hashedPassword } from '../../utils/helpers.mjs';
 
-const createToken = (_id) => {
-  const jwtkey = process.env.JWT_SECRET_KEY;
-  
-  return jwt.sign({ _id }, jwtkey, { expiresIn: "3d"});
+
+export const getAllUsers = async (req, res) => {
+  try {
+    let users = await UserModel.find();
+    if(!users) res.status(400).json('No users found')
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+  res.status(200).send('Welcome to Chat Application');
 }
 
-export const getAll = (req, res) => {
-  res.status(200).send('Welcome to Chat Application');
+export const findUser = async ( req, res ) => {
+  const { id } = req.params;
+  try {
+    const user = await UserModel.findById(id);
+    if(!user) res.status(400).json('User not found');
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 }
 
 export const register = async (req, res) => {
@@ -20,17 +30,40 @@ export const register = async (req, res) => {
   try {
     let user = await UserModel.findOne({email});
 
-    if(user) throw new Error('User already registered')
-    if(!displayName || !email || !password) throw new Error('All fields are required')
-    if(!validator.isEmail(email)) throw new Error('Email must be a valid email...')
-    if(!validator.isStrongPassword(password)) throw new Error('Password must be a strong password')
+    if(user) res.status(400).json('User already registered')
+    if(!displayName || !email || !password) res.status(400).json('All fields are required')
+    if(!validator.isEmail(email)) res.status(400).json('Email must be a valid email...')
+    if(!validator.isStrongPassword(password)) res.status(400).json('Password must be a strong password')
 
-    user = new UserModel({ displayName, email, password});
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
+    let hashPass = hashedPassword(password)
+    user = new UserModel({ displayName, email, password: hashPass});
+    
     await user.save(); 
+    const token = createToken(user._id)
 
+    res.status(200).send({_id: user._id, displayName, email,  token});
   } catch (error) {
     res.status(500).send(error.message);
   }
+}
+
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    let user = await UserModel.findOne({ email });
+    if(!user) res.status(400).json('Invalid email or password...');
+
+    let isValidPass = comparePassword(password, user.password);
+    if(!isValidPass) res.status(400).json('Invalid email or password...'); 
+    const token = createToken(user._id);
+
+    res.status(200).send({ _id: user._id, name: user.displayName, email, token: token });
+  } catch (error) {
+    res.status(500).send('Error: ' + error.message);
+  }
+}
+
+export const logout = async (req, res) => {
+
 }

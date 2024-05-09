@@ -7,12 +7,15 @@ import routes from './src/routes/index.mjs';
 dotenv.config();
 
 const app = express();
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
 app.use(routes);
 
 
+app.get('/api', async(req, res) => {
+  res.status(200).send('Welcome to the ChatApplication');
+});
 
 const PORT = process.env.PORT || 5000;
 

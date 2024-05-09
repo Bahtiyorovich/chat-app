@@ -1,7 +1,10 @@
 import { Router } from 'express';
-import { getAll } from '../controllers/auth/auth.mjs';
+import { findUser, getAllUsers, login, register } from '../controllers/auth/auth.mjs';
 const router = Router();
 
-router.get('/', getAll);
+router.get('/', getAllUsers);
+router.get('/find/:id', findUser);
+router.post('/register', register);
+router.post('/login', login);
 
 export default router;
