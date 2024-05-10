@@ -1,17 +1,19 @@
 import {
-  Card,
   Navbar,
   Typography,
   IconButton,
   Button,
-  Input,
   Badge,
 } from "@material-tailwind/react";
 import { BellIcon } from "@heroicons/react/24/solid";
 import { Logo } from "../../assets";
 import { Link } from "react-router-dom";
+import { useAuth } from './../../context/authContaxt';
  
 const NavbarDark = () => {
+
+  const { user, logout } = useAuth();
+
   return (
       <Navbar
         variant="gradient"
@@ -29,8 +31,27 @@ const NavbarDark = () => {
               </IconButton>
             </Badge>
           </div>
-         
-          <div className=" flex w-full gap-2 md:w-max">
+          {
+            user 
+           ? <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-full flex items-center justify-center font-semibold text-2xl bg-gray-700">{user?.displayName.at(0)}</div>
+          <div>
+            <Typography variant="h6">{user?.displayName}</Typography>
+            <Typography variant="small" color="cyan" className="font-normal">
+              {user?.email}
+            </Typography>
+          </div>
+          <Link onClick={() => logout()} to="/login">
+            <Button 
+                size="sm"
+                color="white"
+                className="rounded"
+                >
+                  Logout
+            </Button>
+          </Link>
+            </div>
+           : <div className=" flex w-full gap-2 md:w-max">
             <Link to="/login">
               <Button 
                 size="sm"
@@ -47,7 +68,8 @@ const NavbarDark = () => {
                   SignUp
               </Button>
             </Link>
-          </div>
+            </div>
+          }
         </div>
       </Navbar>
   );

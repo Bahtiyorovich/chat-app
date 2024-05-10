@@ -15,7 +15,7 @@ import { useAuth } from "../../context/authContaxt";
  
 const Register = () => {
 
-  const { registerInfo, handleRegister, isLoading, registerError, registerUser } = useAuth();
+  const { registerInfo, handleRegister, isRegisterLoading, registerError, registerUser } = useAuth();
 
   const [show, setShow] = useState(false);
   const handleShowPass = useCallback(() => {
@@ -89,15 +89,15 @@ const Register = () => {
           containerProps={{ className: "-ml-2.5" }}
         />
         <Button type="submit" className="mt-6 flex items-center justify-center" fullWidth >
-          {isLoading ? <Spinner className="h-4 w-4"/> : "Sign Up"}
+          {isRegisterLoading ? <Spinner className="h-4 w-4"/> : "Sign Up"}
         </Button>
+      </form>
         <Typography color="gray" className="mt-4 text-center font-normal">
           Already have an account?{" "}
         <Link to={'/login'}>
           SignIn
         </Link>
         </Typography>
-      </form>
       </CardBody>
     </Card>
   );

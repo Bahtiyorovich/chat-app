@@ -5,13 +5,17 @@ import {
   Button,
   Typography,
   CardBody,
-  Alert
+  Alert,
+  Spinner
 } from "@material-tailwind/react";
 import { SignIn } from "../../assets";
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/authContaxt";
  
 const Login = () => {
+
+  const { loginInfo, handleLogin, isLoginLoading, loginError, loginUser } = useAuth();
 
   const [show, setShow] = useState(false);
   const handleShowPass = useCallback(() => {
@@ -30,9 +34,9 @@ const Login = () => {
       <Typography color="gray" className="mt-1 font-normal">
         Nice to meet you! Enter your details to login.
       </Typography>
-      <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+      <form onSubmit={loginUser} className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
         <div className="mb-1 flex flex-col gap-6">
-          <ErrMessage/> 
+          {loginError?.error && <ErrMessage/> }
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Your Email
           </Typography>
@@ -43,6 +47,7 @@ const Login = () => {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            onChange={(e) => handleLogin({...loginInfo, email: e.target.value})}
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Password
@@ -55,6 +60,7 @@ const Login = () => {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            onChange={(e) => handleLogin({...loginInfo, password: e.target.value})}
           />
         </div>
         <Checkbox
@@ -70,16 +76,16 @@ const Login = () => {
           }
           containerProps={{ className: "-ml-2.5" }}
         />
-        <Button className="mt-6" fullWidth>
-          sign in
+        <Button type="submit" className="mt-6 flex items-center justify-center" fullWidth >
+          {isLoginLoading ? <Spinner className="h-4 w-4"/> : "Sign In"}
         </Button>
+      </form>
         <Typography color="gray" className="mt-4 text-center font-normal">
           Already have an account?{" "}
         <Link to={'/register'}>
           SignUp
         </Link>
         </Typography>
-      </form>
       </CardBody>
     </Card>
   );
@@ -105,12 +111,15 @@ function Icon() {
 }
  
 function ErrMessage() {
+
+  const { loginError } = useAuth();
+
   return (
     <Alert
       icon={<Icon />}
       className="rounded-none border-l-4 border-red-500 bg-red-50 font-medium text-red-500"
     >
-      Sorry, something went wrong please try again.
+      {loginError?.message}
     </Alert>
   );
 }
