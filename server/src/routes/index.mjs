@@ -1,8 +1,12 @@
 import { Router } from 'express';
-import AuthRouter from './auth.router.mjs';
+import AuthRoutes from './auth.router.mjs';
+import ChatsRoutes from './chat.router.mjs';
+import MessageRoutes from './message.router.mjs';
 
 const router = Router();
 
-router.use('/api/users', AuthRouter);
+router.use('/api/users', AuthRoutes);
+router.use('/api/chats', ChatsRoutes);
+router.use('/api/messages', MessageRoutes);
 
 export default router;

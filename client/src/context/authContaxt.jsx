@@ -18,10 +18,6 @@ export const AuthContextProvider = ({ children }) => {
     email: "",
     password: "",
   });
-
-  console.log("user:", user);
-  console.log("userLogin:", loginInfo);
-
   const handleRegister = useCallback((info) => {
     setRegisterInfo(info);
   }, []);
@@ -55,10 +51,8 @@ export const AuthContextProvider = ({ children }) => {
     setIsLoginLoading(true);
     setLoginError(null);
 
-    const response = await postRequest(
-      'http://localhost:8000/api/users/login',
-      JSON.stringify(loginInfo)
-    );
+    const response = await postRequest('http://localhost:8000/api/users/login', 
+      JSON.stringify(loginInfo));
 
     setIsLoginLoading(false);
 
@@ -66,10 +60,10 @@ export const AuthContextProvider = ({ children }) => {
       return setLoginError(response.error);
     }
 
-    localStorage.setItem("User", JSON.stringify(response));
+    localStorage.setItem("User", response);
     setUser(response);
 
-  }, [loginInfo]);
+  }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("User");

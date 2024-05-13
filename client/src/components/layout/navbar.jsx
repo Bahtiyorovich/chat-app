@@ -5,7 +5,7 @@ import {
   Button,
   Badge,
 } from "@material-tailwind/react";
-import { BellIcon } from "@heroicons/react/24/solid";
+import { FiMessageSquare } from "react-icons/fi";
 import { Logo } from "../../assets";
 import { Link } from "react-router-dom";
 import { useAuth } from './../../context/authContaxt';
@@ -27,7 +27,7 @@ const NavbarDark = () => {
           <div className="ml-auto flex gap-1 md:mr-4">
             <Badge content="5">
               <IconButton variant="text" color="white" className="bg-gray-700">
-                <BellIcon className="h-4 w-4" />
+                <FiMessageSquare className="h-4 w-4" />
               </IconButton>
             </Badge>
           </div>

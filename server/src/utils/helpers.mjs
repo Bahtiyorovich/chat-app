@@ -13,6 +13,6 @@ export const hashedPassword = (pass) => {
   return bcrypt.hashSync(pass, salt);
 }
 
-export const comparePassword = (password1, password2) => {
-  return bcrypt.compareSync(password1, password2);
+export function comparePassword(plain, password ){
+  return bcrypt.compareSync(plain, password);
 }
