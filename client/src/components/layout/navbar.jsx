@@ -8,11 +8,17 @@ import {
 import { FiMessageSquare } from "react-icons/fi";
 import { Logo } from "../../assets";
 import { Link } from "react-router-dom";
-import { useAuth } from './../../context/authContaxt';
- 
+import { useSelector } from "react-redux";
+import { removeCookie } from '../../utils/cookie';
+
 const NavbarDark = () => {
 
-  const { user, logout } = useAuth();
+  const user = useSelector(state => state.user.user);
+  
+  const logout = () => {
+    removeCookie('email');
+    // Qolgan turini o'chirishingiz mumkin
+  };
 
   return (
       <Navbar
@@ -41,7 +47,7 @@ const NavbarDark = () => {
               {user?.email}
             </Typography>
           </div>
-          <Link onClick={() => logout()} to="/login">
+          <Link onClick={logout} to="/login">
             <Button 
                 size="sm"
                 color="white"

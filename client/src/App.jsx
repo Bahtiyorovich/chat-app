@@ -1,14 +1,28 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Chat, Register, Login } from './components';
-import { useAuth } from './context/authContaxt';
-import { ChatContextProvider } from './context/chatContext';
+import { getCookie } from './utils/cookie';
+import { loginUserAsync } from './utils/asyncThunkMethods';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
 const App = () => {
+  
+  const dispatch = useDispatch();
+  const user = useSelector(state => state.user.user);
 
-  const { user } = useAuth();
+  useEffect(() => {
+    const checkUserLoggedIn = () => {
+      const email = getCookie('email');
+      if (email) {
+        // Agar username cookie-da mavjud bo'lsa, foydalanuvchini avtomatik ravishda kirita olasiz
+        dispatch(loginUserAsync({ email }));
+      }
+    };
+
+    checkUserLoggedIn();
+  }, [dispatch]);
 
   return (
-    <ChatContextProvider user={user}>
       <div className=' bg-gray-900 h-screen w-full'>
         <Routes>
           <Route path='/' element={user ? <Chat/> : <Login/>}/>
@@ -17,7 +31,6 @@ const App = () => {
           <Route path='*' element={<Navigate to="/" />}/>
         </Routes>
       </div>
-    </ChatContextProvider>
   )
 }
 

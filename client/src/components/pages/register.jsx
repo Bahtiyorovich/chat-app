@@ -8,22 +8,43 @@ import {
   Alert,
   Spinner
 } from "@material-tailwind/react";
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUserAsync } from '../../utils/asyncThunkMethods';
 import { SignUp } from "../../assets";
 import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../context/authContaxt";
- 
+import { setCookie } from '../../utils/cookie';
+
 const Register = () => {
 
-  const { registerInfo, handleRegister, isRegisterLoading, registerError, registerUser } = useAuth();
+  const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    displayName: '',
+    email: '',
+    password: '',
+  });
+  const { loading, error } = useSelector((state) => state.user);
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    dispatch(registerUserAsync(formData))
+      .then(() => {
+        setCookie('email', formData.email, 7);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+  
+
+  
   const [show, setShow] = useState(false);
   const handleShowPass = useCallback(() => {
     setShow(prev => !prev)
   }, [show]);
 
   return (
-    <Card className="flex flex-row rounded-none h-full">
+    <Card className="flex flex-row items-center justify-start rounded-none h-full">
       <CardBody>
         <img src={SignUp} alt="register page" />
       </CardBody>
@@ -34,32 +55,37 @@ const Register = () => {
       <Typography color="gray" className="mt-1 font-normal">
         Nice to meet you! Enter your details to register.
       </Typography>
-      <form onSubmit={registerUser} className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
+      <form onSubmit={handleSubmit} className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
         <div className="mb-1 flex flex-col gap-6">
-          {registerError?.error && <ErrMessage/> }
+          {error && <ErrMessage/> }
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             display Name
           </Typography>
           <Input
             size="lg"
+            type="text"
             placeholder="name@mail.com"
             className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
-            onChange={(e) => handleRegister({...registerInfo, displayName: e.target.value})}
+            value={formData.displayName}
+            onChange={(e) => setFormData({...formData, displayName:e.target.value})}
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Your Email
           </Typography>
           <Input
             size="lg"
+            type="email"
             placeholder="name@mail.com"
             className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
-            onChange={(e) => handleRegister({...registerInfo, email: e.target.value})}
+            value={formData.email}
+            onChange={(e) => setFormData({...formData, email:e.target.value})}
+            
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Password
@@ -72,7 +98,8 @@ const Register = () => {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
-            onChange={(e) => handleRegister({...registerInfo, password: e.target.value})}
+            value={formData.password}
+            onChange={(e) => setFormData({...formData, password:e.target.value})}
           />
         </div>
         <Checkbox
@@ -89,7 +116,7 @@ const Register = () => {
           containerProps={{ className: "-ml-2.5" }}
         />
         <Button type="submit" className="mt-6 flex items-center justify-center" fullWidth >
-          {isRegisterLoading ? <Spinner className="h-4 w-4"/> : "Sign Up"}
+          {loading ? <Spinner className="h-4 w-4"/> : "Sign Up"}
         </Button>
       </form>
         <Typography color="gray" className="mt-4 text-center font-normal">
@@ -123,14 +150,13 @@ function Icon() {
 }
  
 function ErrMessage() {
-  const { registerError } = useAuth();
+  const { error } = useSelector((state) => state.user);
   return (
-
     <Alert
       icon={<Icon />}
       className="rounded-none border-l-4 border-red-500 bg-red-50 font-medium text-red-500"
     >
-      { registerError?.message}
+      {error}
     </Alert>
   );
 }
