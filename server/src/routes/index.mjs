@@ -5,7 +5,7 @@ import MessageRoutes from './message.router.mjs';
 
 const router = Router();
 
-router.use('/api/users', AuthRoutes);
+router.use('/api', AuthRoutes);
 router.use('/api/chats', ChatsRoutes);
 router.use('/api/messages', MessageRoutes);
 

@@ -1,18 +1,10 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
-dotenv.config();
+import bcrypt from 'bcryptjs';
 
-export const createToken = (id) => {
-  const jwtkey = process.env.JWT_SECRET_KEY;
-  return jwt.sign({ id }, jwtkey, { expiresIn: "3d"});
-}
+export const hashedPassword = (password) => {
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(password, salt);
+};
 
-export const hashedPassword = (pass) => {
-  let salt = bcrypt.genSaltSync(10);
-  return bcrypt.hashSync(pass, salt);
-}
-
-export function comparePassword(plain, password ){
-  return bcrypt.compareSync(plain, password);
-}
+export const comparePassword = (password, hash) => {
+  return bcrypt.compareSync(password, hash);
+};

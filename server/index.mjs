@@ -1,4 +1,5 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import './src/configs/db.mjs';
@@ -7,8 +8,9 @@ import routes from './src/routes/index.mjs';
 dotenv.config();
 
 const app = express();
-app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
+app.use(cors());
 
 app.use(routes);
 
