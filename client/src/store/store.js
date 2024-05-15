@@ -1,12 +1,15 @@
-import { configureStore } from '@reduxjs/toolkit';
-import userReducer from '../utils/userSlice';
+import { configureStore } from "@reduxjs/toolkit";
+import  authSlice  from "../utils/authSlices/authSlice";
 
 const store = configureStore({
-  reducer: {
-    user: userReducer,
-    // Boshqa reducerlar ham bo'lsa ularni ham qo'shing
-    // Masalan: someFeature: someReducer,
-  },
+    reducer: {
+        user: authSlice
+    },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            immutableCheck: false,
+            serializableCheck: false
+        })
 });
 
 export default store;

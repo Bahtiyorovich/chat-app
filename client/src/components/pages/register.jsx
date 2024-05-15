@@ -9,35 +9,44 @@ import {
   Spinner
 } from "@material-tailwind/react";
 import { useDispatch, useSelector } from 'react-redux';
-import { registerUserAsync } from '../../utils/asyncThunkMethods';
 import { SignUp } from "../../assets";
-import { useCallback, useState } from "react";
-import { Link } from "react-router-dom";
-import { setCookie } from '../../utils/cookie';
+import { useCallback, useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { signupUser } from "../../utils/asyncThunkFunctions/asyncThunkFunctions";
 
 const Register = () => {
-
+  const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { isFetching, isSuccess, isError,user, errorMessage } = useSelector(
+    (state) => state.user
+);
   const [formData, setFormData] = useState({
-    displayName: '',
+    name: '',
     email: '',
     password: '',
   });
-  const { loading, error } = useSelector((state) => state.user);
+ 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(registerUserAsync(formData))
-      .then(() => {
-        setCookie('email', formData.email, 7);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    dispatch(signupUser(formData))
   };
-  
 
-  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+        ...prevData,
+        [name]: value
+    }));
+};
+
+  useEffect(() => {
+    // redirect user to login page if registration was successful
+    if (isSuccess) navigate('/login')
+    // redirect authenticated user to profile screen
+    if (user) navigate('/home')
+  }, [navigate, user, isSuccess])
+
   const [show, setShow] = useState(false);
   const handleShowPass = useCallback(() => {
     setShow(prev => !prev)
@@ -57,7 +66,7 @@ const Register = () => {
       </Typography>
       <form onSubmit={handleSubmit} className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
         <div className="mb-1 flex flex-col gap-6">
-          {error && <ErrMessage/> }
+          {errorMessage &&  <ErrMessage/> }
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             display Name
           </Typography>
@@ -69,8 +78,9 @@ const Register = () => {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
-            value={formData.displayName}
-            onChange={(e) => setFormData({...formData, displayName:e.target.value})}
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Your Email
@@ -83,9 +93,9 @@ const Register = () => {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            name="email"
             value={formData.email}
-            onChange={(e) => setFormData({...formData, email:e.target.value})}
-            
+            onChange={handleChange}
           />
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Password
@@ -98,8 +108,9 @@ const Register = () => {
             labelProps={{
               className: "before:content-none after:content-none",
             }}
+            name="password"
             value={formData.password}
-            onChange={(e) => setFormData({...formData, password:e.target.value})}
+            onChange={handleChange}
           />
         </div>
         <Checkbox
@@ -116,7 +127,7 @@ const Register = () => {
           containerProps={{ className: "-ml-2.5" }}
         />
         <Button type="submit" className="mt-6 flex items-center justify-center" fullWidth >
-          {loading ? <Spinner className="h-4 w-4"/> : "Sign Up"}
+          {isFetching ? <Spinner className="h-4 w-4"/> : "Sign Up"}
         </Button>
       </form>
         <Typography color="gray" className="mt-4 text-center font-normal">
@@ -150,13 +161,13 @@ function Icon() {
 }
  
 function ErrMessage() {
-  const { error } = useSelector((state) => state.user);
+  const { errorMessage } = useSelector((state) => state.signup);
   return (
     <Alert
       icon={<Icon />}
       className="rounded-none border-l-4 border-red-500 bg-red-50 font-medium text-red-500"
     >
-      {error}
+      {errorMessage.message}
     </Alert>
   );
 }
